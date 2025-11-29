@@ -4,65 +4,71 @@ import json
 import os
 import time
 
-# --- CONFIGURATION ---
+# --- CONFIGURATION & STATE ---
 DATA_FILE = "bets_data.json"
 ADMIN_PASSWORD = "keith" 
-TARGET_SLIDES = 12
 
-# --- PAGE SETUP & AESTHETIC CSS ---
-st.set_page_config(page_title="Keith Coin Markets", page_icon="🪙", layout="wide")
+# --- PAGE SETUP (Must be first) ---
+st.set_page_config(page_title="Keith Duel", page_icon="⚔️", layout="wide")
 
-# Custom CSS for that "Dark Crypto" vibe
+# --- CUSTOM CSS (The "Duel" Look) ---
 st.markdown("""
-    <style>
-    /* Main Background adjustments */
+<style>
+    /* 1. Main Background - Deep Navy */
     .stApp {
-        background-color: #0e1117;
+        background-color: #0b0e14;
+        color: white;
     }
     
-    /* Card Styling */
-    .css-card {
-        background-color: #262730;
+    /* 2. Sidebar - Slightly Lighter Navy */
+    [data-testid="stSidebar"] {
+        background-color: #11141d;
+        border-right: 1px solid #2b2f42;
+    }
+
+    /* 3. Headers & Text */
+    h1, h2, h3 {
+        font-family: 'Source Sans Pro', sans-serif;
+        color: #ffffff !important;
+    }
+    
+    /* 4. Custom Cards (Mimicking the Game Cards) */
+    div.css-1r6slb0 {
+        background-color: #1a1d29;
+        border-radius: 12px;
         padding: 20px;
-        border-radius: 10px;
-        border: 1px solid #41424C;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        margin-bottom: 20px;
+        border: 1px solid #2b2f42;
+    }
+
+    /* 5. Metrics/Stats Containers */
+    [data-testid="stMetricValue"] {
+        color: #4f46e5; /* Electric Blue */
+    }
+
+    /* 6. Buttons (The "Wallet" Style) */
+    .stButton>button {
+        background-color: #4f46e5;
+        color: white;
+        border-radius: 8px;
+        border: none;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .stButton>button:hover {
+        background-color: #4338ca;
+        box-shadow: 0 0 10px #4f46e5;
     }
     
-    /* Live Pulse Animation */
-    .live-indicator {
-        display: inline-block;
-        width: 12px;
-        height: 12px;
-        background-color: #00FF00;
-        border-radius: 50%;
-        box-shadow: 0 0 0 0 rgba(0, 255, 0, 1);
-        animation: pulse-green 2s infinite;
-        margin-right: 8px;
+    /* 7. Input Fields (Dark Mode) */
+    .stTextInput>div>div>input, .stNumberInput>div>div>input {
+        background-color: #1a1d29;
+        color: white;
+        border: 1px solid #2b2f42;
     }
-    @keyframes pulse-green {
-        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7); }
-        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 255, 0, 0); }
-        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 0, 0); }
-    }
-    
-    /* Leaderboard Styling */
-    .leader-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 8px;
-        border-bottom: 1px solid #333;
-        font-family: monospace;
-    }
-    .leader-gold { color: #FFD700; font-weight: bold; }
-    .leader-silver { color: #C0C0C0; font-weight: bold; }
-    .leader-bronze { color: #CD7F32; font-weight: bold; }
-    
-    </style>
+</style>
 """, unsafe_allow_html=True)
 
-# --- DATA FUNCTIONS ---
+# --- HELPER FUNCTIONS ---
 def load_data():
     if not os.path.exists(DATA_FILE):
         return {"market_open": True, "bets": [], "result": None}
@@ -78,157 +84,147 @@ def save_data(data):
 
 data = load_data()
 
-# --- ADMIN SIDEBAR ---
-with st.sidebar:
-    st.header("⚙️ Admin Controls")
-    password = st.text_input("Password", type="password")
+# --- TOP NAVBAR (Mimicking Image 1) ---
+col_logo, col_space, col_wallet = st.columns([2, 6, 2])
+
+with col_logo:
+    st.title("⚔️ DUEL x KEITH")
+
+with col_wallet:
+    # Fake Wallet Button
+    st.metric("My Wallet", "1,000 KC", delta=None)
+
+st.markdown("---")
+
+# --- MAIN HERO SECTION ---
+# This mimics the "First Casino..." banner
+st.markdown("""
+<div style="background: linear-gradient(90deg, #1e1b4b 0%, #312e81 100%); padding: 40px; border-radius: 15px; text-align: center; margin-bottom: 30px; border: 1px solid #4f46e5;">
+    <h1 style="font-size: 50px; margin-bottom: 10px;">The First Prediction Market</h1>
+    <h3 style="color: #a5b4fc !important;">That Actually Matters for Your Grade.</h3>
+    <p style="color: #c7d2fe;">Predict the slide count. Win Keith Coins. Glory awaits.</p>
+</div>
+""", unsafe_allow_html=True)
+
+# --- TWO COLUMN LAYOUT (Betting on Left, Leaderboard on Right) ---
+left_col, right_col = st.columns([1, 2])
+
+# === LEFT COLUMN: THE "GAME" (Betting Interface) ===
+with left_col:
+    st.subheader("🎮 Live Market")
     
+    # Wrap in a nice container
+    with st.container(border=True):
+        st.write("#### 📊 Event: Total Slides in Deck")
+        
+        if data["market_open"]:
+            with st.form("bet_form"):
+                st.write("Make your prediction below:")
+                user_name = st.text_input("Username / Gamertag")
+                prediction = st.number_input("Your Guess", min_value=0, step=1)
+                wager = st.slider("Wager Amount (KC)", 10, 500, 50)
+                
+                submit = st.form_submit_button("🔥 PLACE BET")
+                
+                if submit and user_name:
+                    new_bet = {
+                        "name": user_name,
+                        "prediction": int(prediction),
+                        "wager": wager,
+                        "timestamp": time.time()
+                    }
+                    data["bets"].append(new_bet)
+                    save_data(data)
+                    st.success(f"Bet placed for {user_name}!")
+                    time.sleep(1)
+                    st.rerun()
+        else:
+            st.error("🔒 MARKET CLOSED")
+            if data["result"]:
+                st.write(f"### RESULT: {data['result']} Slides")
+
+# === RIGHT COLUMN: LEADERBOARD & STATS (Mimicking Image 3) ===
+with right_col:
+    st.subheader("🏆 Live Leaderboard")
+    
+    if data["bets"]:
+        df = pd.DataFrame(data["bets"])
+        
+        # 1. Market Stats Row
+        stat_c1, stat_c2, stat_c3 = st.columns(3)
+        stat_c1.metric("Total Pool", f"{df['wager'].sum()} KC")
+        stat_c2.metric("Players", len(df))
+        if not df.empty:
+            stat_c3.metric("Top Guess", f"{df['prediction'].mode()[0]}")
+        
+        # 2. The Leaderboard Table
+        # We process the dataframe to look like a leaderboard
+        leaderboard = df[['name', 'prediction', 'wager']].sort_values(by='wager', ascending=False).reset_index(drop=True)
+        leaderboard.index += 1 # Start ranking at 1
+        
+        # Display nicely styled dataframe
+        st.dataframe(
+            leaderboard,
+            column_config={
+                "name": "Player",
+                "prediction": "Guess",
+                "wager": st.column_config.ProgressColumn(
+                    "Wager Size",
+                    help="Volume of Keith Coin staked",
+                    format="%d KC",
+                    min_value=0,
+                    max_value=500,
+                ),
+            },
+            use_container_width=True
+        )
+        
+        # 3. Chart (Visuals)
+        st.subheader("📈 Market Volume")
+        chart_data = df['prediction'].value_counts().reset_index()
+        chart_data.columns = ['Slide Count', 'Bets']
+        st.bar_chart(chart_data, x='Slide Count', y='Bets', color="#4f46e5")
+        
+    else:
+        st.info("Waiting for the first player to join the lobby...")
+
+# --- ADMIN FOOTER (Hidden at bottom) ---
+st.markdown("---")
+with st.expander("🛠️ Admin Controls"):
+    password = st.text_input("Password", type="password")
     if password == ADMIN_PASSWORD:
-        st.success("Admin Logged In")
-        st.write("---")
-        auto_refresh = st.checkbox("🔄 Auto-Refresh (Live Mode)", value=True)
-        
-        if st.button("⏯️ Open/Close Market"):
-            data["market_open"] = not data["market_open"]
-            save_data(data)
-            st.rerun()
-            
-        st.write(f"Status: **{'OPEN' if data['market_open'] else 'CLOSED'}**")
-        
-        st.write("---")
-        actual_slides = st.number_input("Result", value=TARGET_SLIDES)
-        if st.button("🚨 RESOLVE & PAYOUT"):
-            data["market_open"] = False
-            data["result"] = actual_slides
-            save_data(data)
-            st.rerun()
-            
-        st.write("---")
-        if st.button("⚠️ WIPE DATA (RESET)"):
+        col_a, col_b = st.columns(2)
+        with col_a:
+            if st.button("Toggle Market Open/Close"):
+                data["market_open"] = not data["market_open"]
+                save_data(data)
+                st.rerun()
+        with col_b:
+            actual_slides = st.number_input("Actual Result", min_value=0)
+            if st.button("SETTLEMENT"):
+                data["market_open"] = False
+                data["result"] = actual_slides
+                save_data(data)
+                st.rerun()
+                
+        if st.button("Reset Game (Delete Data)"):
             if os.path.exists(DATA_FILE):
                 os.remove(DATA_FILE)
             st.rerun()
 
-# --- MAIN HEADER ---
-col_logo, col_status = st.columns([3, 1])
-with col_logo:
-    st.title("🪙 Keith Coin Markets")
-with col_status:
-    if data["market_open"]:
-        st.markdown('<div style="text-align: right; padding-top: 20px;"><span class="live-indicator"></span>LIVE</div>', unsafe_allow_html=True)
-    else:
-        st.markdown('<div style="text-align: right; padding-top: 20px; color: red;">🛑 CLOSED</div>', unsafe_allow_html=True)
-
-# --- BETTING CARD (Top Section) ---
-if data["market_open"] and data["result"] is None:
-    st.markdown('<div class="css-card">', unsafe_allow_html=True)
-    st.markdown("### 📈 Place Your Prediction")
-    st.markdown("**Market:** *How many slides are in this presentation?*")
-    
-    with st.form("bet_form", clear_on_submit=True):
-        c1, c2, c3, c4 = st.columns([3, 2, 2, 1])
-        with c1:
-            user_name = st.text_input("Trader Name", placeholder="e.g. Elon")
-        with c2:
-            prediction = st.number_input("Your Guess", min_value=0, step=1)
-        with c3:
-            wager = st.slider("Wager (KC)", 10, 500, 50)
-        with c4:
-            st.markdown("<br>", unsafe_allow_html=True) # spacer
-            submit = st.form_submit_button("BUY 🚀")
-            
-        if submit and user_name:
-            new_bet = {
-                "name": user_name,
-                "prediction": int(prediction),
-                "wager": wager,
-                "timestamp": time.time()
-            }
-            data["bets"].append(new_bet)
-            save_data(data)
-            st.toast(f"Bet placed by {user_name}!", icon="💸")
-            time.sleep(0.5)
-            st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-
-
-# --- DASHBOARD AREA ---
-if data["bets"]:
-    df = pd.DataFrame(data["bets"])
-    
-    # METRICS
-    m1, m2, m3 = st.columns(3)
-    m1.metric("Total Liquidity", f"🪙 {df['wager'].sum():,}")
-    m2.metric("Active Traders", f"{len(df)}")
-    m3.metric("Consensus", f"{df['prediction'].mode()[0]} Slides")
-    
-    st.markdown("---")
-    
-    # 2-COLUMN LAYOUT: CHART vs LEADERBOARD
-    col_chart, col_leader = st.columns([2, 1])
-    
-    with col_chart:
-        st.subheader("📊 Market Sentiment")
-        # Customizing the chart color
-        chart_data = df['prediction'].value_counts().reset_index()
-        chart_data.columns = ['Slide Count', 'Volume']
-        st.bar_chart(chart_data, x='Slide Count', y='Volume', color=["#00FF00"]) # Crypto Green
-        
-        # Recent Ticker
-        with st.expander("📜 Recent Order Flow", expanded=False):
-            st.dataframe(df[['name', 'prediction', 'wager']].tail(10).iloc[::-1], hide_index=True, use_container_width=True)
-
-    with col_leader:
-        st.subheader("🏆 Whale Leaderboard")
-        st.markdown('<div class="css-card">', unsafe_allow_html=True)
-        
-        # Group by name to sum wagers (if someone bets twice)
-        leaders = df.groupby('name')['wager'].sum().reset_index().sort_values('wager', ascending=False).head(5)
-        
-        for i, (index, row) in enumerate(leaders.iterrows()):
-            rank = i + 1
-            if rank == 1: style = "leader-gold"
-            elif rank == 2: style = "leader-silver"
-            elif rank == 3: style = "leader-bronze"
-            else: style = ""
-            
-            st.markdown(f"""
-                <div class="leader-row">
-                    <span class="{style}">#{rank} {row['name']}</span>
-                    <span>🪙 {row['wager']}</span>
-                </div>
-            """, unsafe_allow_html=True)
-            
-        st.markdown('</div>', unsafe_allow_html=True)
-
-else:
-    st.info("Waiting for first trade...")
-
-# --- RESULTS OVERLAY ---
+# --- WINNER OVERLAY ---
 if data["result"] is not None:
-    st.markdown("---")
     st.balloons()
-    
-    # Winner Logic
     df = pd.DataFrame(data["bets"])
     winners = df[df['prediction'] == data['result']]
     
     st.markdown(f"""
-    <div style="text-align: center; padding: 20px; background-color: #1a4d2e; border-radius: 15px; border: 2px solid #00ff00;">
-        <h1>✅ ACTUAL SLIDE COUNT: {data['result']}</h1>
+    <div style="background-color: #22c55e; padding: 20px; border-radius: 10px; text-align: center; color: black;">
+        <h1>🎉 RESULT: {data['result']} SLIDES 🎉</h1>
     </div>
     """, unsafe_allow_html=True)
     
     if not winners.empty:
-        st.markdown("### 🎉 THE WINNERS")
-        cols = st.columns(len(winners))
-        for idx, row in winners.iterrows():
-            st.success(f"🏆 {row['name']} wins! (Bet: {row['wager']} KC)")
-    else:
-        st.error("💀 The House Wins (No correct guesses).")
-
-
-# --- AUTO REFRESH LOOP ---
-if 'auto_refresh' in locals() and auto_refresh and data["result"] is None:
-    time.sleep(2)
-    st.rerun()
+        st.write("### 💰 PAYOUTS")
+        for i, row in winners.iterrows():
+            st.success(f"PAYING OUT: {row['name']} wins {row['wager'] * 5} KC!")
