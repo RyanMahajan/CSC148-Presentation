@@ -4,7 +4,7 @@ import json
 import os
 import time
 import base64
-import altair as alt
+import plotly.express as px
 
 # --- CONFIGURATION ---
 DATA_FILE = "bets_data.json"
@@ -206,21 +206,10 @@ if data["result"] is None:
                 #chart_data = df['prediction'].value_counts().reset_index()
                 #chart_data.columns = ['Count', 'Volume']
                 #st.scatter_chart(df, x='Count', y='Volume', color="#ff9f43")
-                scatter = alt.Chart(df).mark_circle(size=80).encode(
-                    x="prediction",
-                    y="wager",
-                    tooltip=["name", "prediction", "wager"]  # hover info
-                )
-                text = alt.Chart(df).mark_text(
-                    align="left",
-                    baseline="middle",
-                    dx=7  # nudges text right
-                ).encode(
-                    x="x",
-                    y="y",
-                    text="label"
-                )
-                st.altair_chart(scatter + text, use_container_width=True)
+                fig = px.scatter(df, x="prediction", y="wager", text="name")
+                fig.update_traces(textposition='top center')
+
+                st.plotly_chart(fig, use_container_width=True)
             else:
                 st.write("No data yet.")
 
