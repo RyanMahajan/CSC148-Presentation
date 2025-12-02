@@ -4,11 +4,12 @@ import json
 import os
 import time
 import base64
+import altair as alt
 
 # --- CONFIGURATION ---
 DATA_FILE = "bets_data.json"
 ADMIN_PASSWORD = "keith" 
-TARGET_SLIDES = 12
+TARGET_SLIDES = 38
 IMAGE_PATH = "keithcoin.png"
 
 # --- HELPER: CONVERT IMAGE TO STRING FOR HTML ---
@@ -202,9 +203,24 @@ if data["result"] is None:
         with st.container(border=True):
             if data["bets"]:
                 df = pd.DataFrame(data["bets"])
-                chart_data = df['prediction'].value_counts().reset_index()
-                chart_data.columns = ['Count', 'Volume']
-                st.bar_chart(chart_data, x='Count', y='Volume', color="#ff9f43")
+                #chart_data = df['prediction'].value_counts().reset_index()
+                #chart_data.columns = ['Count', 'Volume']
+                #st.scatter_chart(df, x='Count', y='Volume', color="#ff9f43")
+                scatter = alt.Chart(df).mark_circle(size=80).encode(
+                    x="prediction",
+                    y="wager",
+                    tooltip=["name", "prediction", "wager"]  # hover info
+                )
+                text = alt.Chart(df).mark_text(
+                    align="left",
+                    baseline="middle",
+                    dx=7  # nudges text right
+                ).encode(
+                    x="x",
+                    y="y",
+                    text="label"
+                )
+                st.altair_chart(scatter + text, use_container_width=True)
             else:
                 st.write("No data yet.")
 
