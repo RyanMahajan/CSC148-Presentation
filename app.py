@@ -203,10 +203,7 @@ if data["result"] is None:
         with st.container(border=True):
             if data["bets"]:
                 df = pd.DataFrame(data["bets"])
-                #chart_data = df['prediction'].value_counts().reset_index()
-                #chart_data.columns = ['Count', 'Volume']
-                #st.scatter_chart(df, x='Count', y='Volume', color="#ff9f43")
-                fig = px.scatter(df, x="prediction", y="wager", text="name")
+                fig = px.scatter(df, x="prediction", y="wager", text="name", trendline="ols")
                 fig.update_traces(textposition='top center')
 
                 st.plotly_chart(fig, use_container_width=True)
