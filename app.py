@@ -203,7 +203,7 @@ if data["result"] is None:
         with st.container(border=True):
             if data["bets"]:
                 df = pd.DataFrame(data["bets"])
-                fig = px.scatter(df, x="prediction", y="wager", text="name", trendline="ols")
+                fig = px.scatter(df, x="prediction", y="wager", text="name")
                 fig.update_traces(textposition='top center')
 
                 st.plotly_chart(fig, use_container_width=True)
