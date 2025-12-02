@@ -117,7 +117,6 @@ with st.sidebar:
         st.header("🪙 Keith Coin")
 
     st.markdown("### 🟢 Live Bets")
-    st.markdown("<div style='font-size: 12px; color: grey; margin-bottom: 15px;'>722 Online</div>", unsafe_allow_html=True)
     
     if data["bets"]:
         df = pd.DataFrame(data["bets"])
@@ -156,7 +155,7 @@ with st.sidebar:
 col_title, col_wallet = st.columns([3, 2])
 
 with col_title:
-    st.markdown("# ⚔️ Keith Originals")
+    st.markdown("# ⚔️ Keith Coin Markets")
 
 with col_wallet:
     total_pool = sum(b['wager'] for b in data['bets']) if data['bets'] else 0
@@ -182,7 +181,7 @@ if data["result"] is None:
             with st.container(border=True):
                 with st.form("bet_form", clear_on_submit=True):
                     name = st.text_input("Username")
-                    guess = st.number_input("Slides Prediction", min_value=0)
+                    guess = st.number_input("Coin Prediction", min_value=0)
                     wager = st.slider("Wager Amount", 10, 100, 50)
                     if st.form_submit_button("BET NOW"):
                         if name:
